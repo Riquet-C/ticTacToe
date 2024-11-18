@@ -1,10 +1,19 @@
 public class Cell {
 
-    public Cell(){
+
+
+    private CellStatement cellStatement;
+
+    public Cell(CellStatement cellStatement) {
+        this.cellStatement = cellStatement;
     }
 
-    public String getRepresentation(){
-        return "   ";
+    public CellStatement getCellStatement() {
+        return cellStatement;
+    }
+
+    public void setCellStatement(CellStatement cellStatement) {
+        this.cellStatement = cellStatement;
     }
 
 }
