@@ -34,7 +34,7 @@ public class Menu {
     }
 
     public String cellChoice(){
-        List<String> availableAnswers = new ArrayList<>(List.of("0", "1", "2"));
+        List<String> availableAnswers = List.of("0", "1", "2");
         try {
             return ask(availableAnswers);
         } catch (Exception e) {

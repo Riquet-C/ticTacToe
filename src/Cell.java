@@ -1,19 +1,17 @@
 public class Cell {
 
+    private CellType cellType;
 
-
-    private CellStatement cellStatement;
-
-    public Cell(CellStatement cellStatement) {
-        this.cellStatement = cellStatement;
+    public Cell(CellType cellType) {
+        this.cellType = cellType;
     }
 
-    public CellStatement getCellStatement() {
-        return cellStatement;
+    public CellType getCellStatement() {
+        return cellType;
     }
 
-    public void setCellStatement(CellStatement cellStatement) {
-        this.cellStatement = cellStatement;
+    public void setCellStatement(CellType cellType) {
+        this.cellType = cellType;
     }
 
 }
