@@ -1,7 +1,9 @@
-public class Player {
+package player;
 
+import java.util.ArrayList;
+import java.util.List;
 
-
+public abstract class Player {
     private final String representation;
 
     public Player(String representation) {
@@ -10,4 +12,6 @@ public class Player {
     public String getRepresentation() {
         return representation;
     }
+
+    public abstract List<String> getMoveFromPlayer(Player player);
 }

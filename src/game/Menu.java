@@ -1,4 +1,7 @@
-import java.util.ArrayList;
+package game;
+
+import cells.Cell;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,6 +15,7 @@ public class Menu {
     public void displayBoard(Cell[][] board) {
         for(int i = 0; i < board.length; i++){
             for(int j = 0; j < board.length; j++){
+
                 board[i][j].getCellStatement().display();
                 System.out.print(j < board.length - 1 ? " | " : "");
             }
@@ -43,4 +47,13 @@ public class Menu {
         }
     }
 
+    public String choicePlayer() {
+        List<String> availableAnswers = List.of("1", "2");
+        try {
+            return ask(availableAnswers);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return cellChoice();
+        }
+    }
 }

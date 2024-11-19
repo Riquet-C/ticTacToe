@@ -1,7 +1,9 @@
+package cells;
+
 public enum CellType {
     EMPTY("   "),
-    Player_X(" X "),
-    Player_O(" O ");
+    X(" X "),
+    O(" O ");
 
     private final String type;
 

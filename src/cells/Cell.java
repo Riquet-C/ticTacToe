@@ -1,3 +1,5 @@
+package cells;
+
 public class Cell {
 
     private CellType cellType;
