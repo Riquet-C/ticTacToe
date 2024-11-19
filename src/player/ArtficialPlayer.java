@@ -1,7 +1,5 @@
 package player;
 
-import display.GameDisplay;
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,8 +17,8 @@ public class ArtficialPlayer extends Player {
     public ArrayList<String> getMoveFromPlayer(Player player) {
 
         ArrayList<String> playerChoice = new ArrayList<>(2);
-        playerChoice.add(String.valueOf(randomNumbers.nextInt(2)));
-        playerChoice.add(String.valueOf(randomNumbers.nextInt(2)));
+        playerChoice.add(String.valueOf(randomNumbers.nextInt(3)));
+        playerChoice.add(String.valueOf(randomNumbers.nextInt(3)));
 
         return playerChoice;
     }

@@ -27,12 +27,13 @@ public class TicTacToe {
         createPlayers();
         Player currentPlayer = playerX;
 
-        while (!checkWin(currentPlayer) || !checkEmptyCell()) {
+        while (!checkWin(currentPlayer) && checkEmptyCell()) {
             currentPlayer = changePlayer(currentPlayer);
             menu.displayBoard(this.board);
             GameDisplay.PLAYER_IN_GAME.display(currentPlayer.getRepresentation());
             movePlayer(currentPlayer);
         }
+        menu.displayBoard(this.board);
         GameDisplay.ENDGAME.display();
     }
 
@@ -44,11 +45,13 @@ public class TicTacToe {
 
         switch (choice1){
             case "1" -> this.playerO = new ArtficialPlayer("O");
-            case "2"-> this.playerO = new RealPlayer("O");
+            case "2" -> this.playerO = new RealPlayer("O");
+            default -> createPlayers();
         }
         switch (choice2){
             case "1" -> this.playerX = new ArtficialPlayer("X");
             case "2" -> this.playerX = new RealPlayer("X");
+            default -> createPlayers();
         }
     }
 
@@ -84,7 +87,6 @@ public class TicTacToe {
     }
 
     private boolean checkEmptyCell() {
-        boolean empty = false;
         for (Cell[] cells : board) {
             for (int j = 0; j < board.length; j++) {
                 if (cells[j].getCellStatement() == CellType.EMPTY) {
@@ -92,7 +94,7 @@ public class TicTacToe {
                 }
             }
         }
-        return empty;
+        return false;
     }
 
     private boolean checkWin(Player currentPlayer) {
