@@ -1,16 +1,19 @@
 package player;
 
+import cells.Cell;
+import cells.CellType;
+
 import java.util.List;
 
 public abstract class Player {
-    private final String representation;
+    private final CellType representation;
 
-    protected Player(String representation) {
+    protected Player(CellType representation) {
         this.representation = representation;
     }
-    public String getRepresentation() {
+    public CellType getRepresentation() {
         return representation;
     }
 
-    public abstract List<String> getMoveFromPlayer(Player player);
+    public abstract List<Integer> getMoveFromPlayer(Player player, Cell[][] board);
 }

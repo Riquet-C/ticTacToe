@@ -1,5 +1,7 @@
 package player;
 
+import cells.Cell;
+import cells.CellType;
 import display.GameDisplay;
 import game.Menu;
 
@@ -9,20 +11,20 @@ public class RealPlayer extends Player{
 
     private final Menu menu;
 
-    public RealPlayer(String representation) {
+    public RealPlayer(CellType representation) {
         super(representation);
         menu = new Menu();
     }
 
     @Override
-    public ArrayList<String> getMoveFromPlayer(Player player) {
+    public ArrayList<Integer> getMoveFromPlayer(Player player, Cell[][] board) {
         GameDisplay.LINE.display();
-        String line = menu.cellChoice();
+        Integer line = menu.cellChoice(board);
 
         GameDisplay.COLUMN.display();
-        String column = menu.cellChoice();
+        Integer column = menu.cellChoice(board);
 
-        ArrayList<String> playerChoice = new ArrayList<>(2);
+        ArrayList<Integer> playerChoice = new ArrayList<>(2);
         playerChoice.add(line);
         playerChoice.add(column);
 

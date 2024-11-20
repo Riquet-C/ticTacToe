@@ -2,6 +2,7 @@ package game;
 
 import cells.Cell;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,48 +13,43 @@ public class Menu {
         scanner = new Scanner(System.in);
     }
 
-    public void displayBoard(Cell[][] board) {
-        for(int i = 0; i < board.length; i++){
-            for(int j = 0; j < board.length; j++){
 
-                board[i][j].getCellStatement().display();
-                System.out.print(j < board.length - 1 ? " | " : "");
-            }
-            System.out.println();
-            if (i < board.length - 1) {
-                System.out.println("---------------");
-            }
-        }
-    }
-
-    private String ask(List<String> availableAnswers) throws Exception {
+    private Integer ask(List<Integer> availableAnswers) throws Exception {
         if (availableAnswers == null || availableAnswers.isEmpty()) {
             throw new Exception("No possible answers available");
         }
-        String answer = scanner.nextLine();
+        Integer answer = Integer.valueOf(scanner.nextLine());
         if (!availableAnswers.contains(answer)) {
             throw new Exception("Not acceptable answer");
         }
         return answer;
     }
 
-    public String cellChoice(){
-        List<String> availableAnswers = List.of("0", "1", "2");
+    public List<Integer> availableAnswers(Cell[][] board){
+        List<Integer> availableAnswers = new ArrayList<>(board.length);
+        for (int i = 0; i < board.length ; i++) {
+            availableAnswers.add(i);
+        }
+        return availableAnswers;
+    }
+
+    public Integer cellChoice(Cell[][] board){
+        List<Integer> availableAnswers = availableAnswers(board);
         try {
             return ask(availableAnswers);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return cellChoice();
+            return cellChoice(board);
         }
     }
 
-    public String choicePlayer() {
-        List<String> availableAnswers = List.of("1", "2");
+    public Integer choicePlayer() {
+        List<Integer> availableAnswers = List.of(1, 2);
         try {
             return ask(availableAnswers);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return cellChoice();
+            return choicePlayer();
         }
     }
 }
