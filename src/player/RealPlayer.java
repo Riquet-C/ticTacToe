@@ -1,32 +1,37 @@
 package player;
 
-import cells.Cell;
-import cells.CellType;
+import model.Cell;
+import display.Representation;
 import display.GameDisplay;
-import game.Menu;
+import menu.Menu;
 
 import java.util.ArrayList;
 
-public class RealPlayer extends Player{
+public class RealPlayer extends Player {
 
     private final Menu menu;
 
-    public RealPlayer(CellType representation) {
+    public RealPlayer(Representation representation) {
         super(representation);
         menu = new Menu();
     }
 
     @Override
-    public ArrayList<Integer> getMoveFromPlayer(Player player, Cell[][] board) {
-        GameDisplay.LINE.display();
-        Integer line = menu.cellChoice(board);
+    public ArrayList<Integer> getMoveFromPlayer(Player player, Cell[][] board, int choiceToDo) {
 
-        GameDisplay.COLUMN.display();
-        Integer column = menu.cellChoice(board);
+        ArrayList<Integer> playerChoice = new ArrayList<>(choiceToDo);
 
-        ArrayList<Integer> playerChoice = new ArrayList<>(2);
-        playerChoice.add(line);
-        playerChoice.add(column);
+        for (int i = 1; i <= choiceToDo; i++) {
+            int choice;
+            if (i == 1 ) {
+                GameDisplay.COLUMN.display(board[i].length);
+                choice = menu.choiceCell(board[i].length);
+            } else {
+                GameDisplay.LINE.display(board.length);
+                choice = menu.choiceCell(board.length);
+            }
+            playerChoice.add(choice);
+        }
 
         return playerChoice;
     }

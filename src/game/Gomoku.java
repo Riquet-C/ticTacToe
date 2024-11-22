@@ -1,57 +1,33 @@
 package game;
 
-import cells.Cell;
-import cells.CellType;
+import model.Cell;
+import display.Representation;
+import display.GameDisplay;
+import player.ArtficialPlayer;
 import player.Player;
+import player.RealPlayer;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Gomoku extends BoardGame {
-    protected Gomoku() {
-        super(15);
+    public Gomoku() {
+        super(15, 15, 5);
     }
 
     @Override
-    protected boolean checkDiag(Player currentPlayer, boolean isFirstDiagonal, Cell[][] board) {
-        for (int j = 0; j < board.length; j++) {
-            int count = 0;
-            for (int k = j; k < j + 5 && k < board.length; k++) {
-                CellType cellValue = isFirstDiagonal
-                        ? board[j][j].getCellStatement()
-                        : board[j][board.length - 1 - j].getCellStatement();
-                if (!cellValue.equals(currentPlayer.getRepresentation())) {
-                    return false;
-                } else {
-                    count++;
-                }
-            }
-            if (count == 5) {
-                return true;
-            }
-        }
-        return true;
+    public void movePlayer(Player player, Cell[][] board) {
+        List<Integer> choice = player.getMoveFromPlayer(player, board, 2);
 
-    }
+        Cell cellToChange = board[choice.get(1)][choice.get(0)];
 
-    @Override
-    protected boolean checkLineOrColumn(Player currentPlayer, int index, boolean isLine, Cell[][] board) {
-        for (int j = 0; j < board.length; j++) {
-            int count = 0;
-            for (int k = j; k < j + 5 && k < board.length; k++) {
-                CellType cellValue = isLine
-                        ? board[index][k].getCellStatement()
-                        : board[k][index].getCellStatement();
-                if (!cellValue.equals(currentPlayer.getRepresentation())) {
-                    return false;
-                } else {
-                    count++;
-                }
-            }
-            if (count == 5) {
-                return true;
-            }
+        if (cellToChange.getCellRepresentation() == Representation.EMPTY) {
+            cellToChange.setCellRepresentation(player.getPlayerRepresentation());
+        } else if (player.getClass() == RealPlayer.class) {
+            GameDisplay.ALREADY_CHOOSE.display();
+            movePlayer(player, board);
+        } else if (player.getClass() == ArtficialPlayer.class) {
+            movePlayer(player, board);
         }
-        return true;
     }
 
 }

@@ -1,74 +1,73 @@
 package game;
 
-import cells.Cell;
-import cells.CellType;
+import menu.Menu;
+import model.Cell;
+import display.Representation;
 import display.GameDisplay;
 import player.ArtficialPlayer;
 import player.Player;
 import player.RealPlayer;
 
-import java.util.List;
 
 public abstract class BoardGame {
 
-    protected final int size;
+    private final int col;
+    private final int row;
     private final Menu menu;
     private Player player1;
     private Player player2;
     private Cell[][] board;
+    private final int toWin;
+    private Player currentPlayer;
 
-    protected BoardGame(int size) {
-        this.size = size;
+
+    protected BoardGame(int col, int row, int toWin) {
+        this.col = col;
+        this.row = row;
+        this.toWin = toWin;
         this.menu = new Menu();
     }
+
 
     public void game() {
         createBoard();
         createPlayers();
-        System.out.println(player1.getRepresentation());
-        System.out.println(player2.getRepresentation());
-        Player currentPlayer = player1;
+        currentPlayer = player1;
 
-        while (!checkWin(currentPlayer) && checkEmptyCell()) {
+        while (!checkWin() && checkEmptyCell()) {
             currentPlayer = changePlayer(currentPlayer);
             GameDisplay.BOARD.displayBoard(this.board);
-            GameDisplay.PLAYER_IN_GAME.display(currentPlayer.getRepresentation());
-            movePlayer(currentPlayer);
-
+            GameDisplay.PLAYER_IN_GAME.display(currentPlayer.getPlayerRepresentation());
+            movePlayer(currentPlayer, this.board);
         }
 
-        if (checkWin(currentPlayer)) {
-            GameDisplay.WIN_GAME.display();
-        } else {
-            GameDisplay.FULL_BOARD.display();
-        }
-        GameDisplay.ENDGAME.display();
+        GameDisplay.SHOW_WINNER.displayEndGame(this.board, checkWin(currentPlayer), currentPlayer);
+
     }
-
 
     protected void createPlayers() {
         GameDisplay.PLAYER_CHOICE.display();
-        Integer choice1 = menu.choicePlayer();
+        Integer choicePlayer1 = menu.choicePlayer();
         GameDisplay.PLAYER_CHOICE.display();
-        Integer choice2 = menu.choicePlayer();
+        Integer choicePlayer2 = menu.choicePlayer();
 
-        switch (choice1) {
-            case 1 -> this.player2 = new ArtficialPlayer(CellType.O);
-            case 2 -> this.player2 = new RealPlayer(CellType.O);
+        switch (choicePlayer1) {
+            case 1 -> this.player2 = new ArtficialPlayer(Representation.O);
+            case 2 -> this.player2 = new RealPlayer(Representation.O);
             default -> createPlayers();
         }
-        switch (choice2) {
-            case 1 -> this.player1 = new ArtficialPlayer(CellType.X);
-            case 2 -> this.player1 = new RealPlayer(CellType.X);
+        switch (choicePlayer2) {
+            case 1 -> this.player1 = new ArtficialPlayer(Representation.X);
+            case 2 -> this.player1 = new RealPlayer(Representation.X);
             default -> createPlayers();
         }
     }
 
     protected void createBoard() {
-        this.board = new Cell[this.size][this.size];
-        for (int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
-                this.board[i][j] = new Cell(CellType.EMPTY);
+        this.board = new Cell[this.row][this.col];
+        for (int i = 0; i < this.row; i++) {
+            for (int j = 0; j < this.col; j++) {
+                this.board[i][j] = new Cell(Representation.EMPTY);
             }
         }
     }
@@ -77,27 +76,12 @@ public abstract class BoardGame {
         return player.equals(player1) ? player2 : player1;
     }
 
-    protected void movePlayer(Player player) {
-        List<Integer> choice = player.getMoveFromPlayer(player, this.board);
-
-        Cell cellToChange = this.board[choice.get(0)][choice.get(1)];
-
-        if (cellToChange.getCellStatement() == CellType.EMPTY) {
-            if (player.equals(player1)) {
-                cellToChange.setCellStatement(CellType.X);
-            } else if (player.equals(player2)) {
-                cellToChange.setCellStatement(CellType.O);
-            }
-        } else {
-            GameDisplay.ALREADY_CHOOSE.display();
-            movePlayer(player);
-        }
-    }
+    protected abstract void movePlayer(Player player, Cell[][] board);
 
     protected boolean checkEmptyCell() {
         for (Cell[] cells : board) {
             for (int j = 0; j < board.length; j++) {
-                if (cells[j].getCellStatement() == CellType.EMPTY) {
+                if (cells[j].getCellRepresentation() == Representation.EMPTY) {
                     return true;
                 }
             }
@@ -105,28 +89,61 @@ public abstract class BoardGame {
         return false;
     }
 
-    protected boolean checkWin(Player currentPlayer) {
+
+    protected boolean checkWin() {
+
+        Representation currentPlayerRepresentation = currentPlayer.getPlayerRepresentation();
 
         for (int i = 0; i < board.length; i++) {
-            boolean line = checkLineOrColumn(currentPlayer, i, true, this.board);
-            boolean column = checkLineOrColumn(currentPlayer, i, false, this.board);
-            boolean diagonal = checkDiag(currentPlayer, true, this.board);
-            boolean diagonal2 = checkDiag(currentPlayer, false, this.board);
+            if (checkLineOrColumn(currentPlayerRepresentation, i, true, this.board)
+                    || checkLineOrColumn(currentPlayerRepresentation, i, false, this.board)
+                    || checkDiag(currentPlayerRepresentation, i, true, this.board)
+                    || checkDiag(currentPlayerRepresentation, i, false, this.board)) {return true;}
+        }
+        return false;
+    }
 
-            System.out.println("line" +line);
-            System.out.println("column" +column);
-            System.out.println("diagonal" +diagonal);
-            System.out.println("diagonal2" +diagonal2);
 
-            if (line || column || diagonal || diagonal2) {
+    // TODO essayer de revoir le code vu vendredi avec Raph pour refacto
+    protected boolean checkDiag(Representation currentPlayer, int i, boolean diagUp, Cell[][] board) {
+        for (int j = 0; j < board.length; j++) {
+            int count = 0;
+            for (int step = 0; step < this.toWin; step++) {
+                int newRow = diagUp ? i - step : i + step;
+                int newCol = j + step;
+
+                if (newCol >= 0 && newCol < board.length && newRow >= 0 && newRow < board.length) {
+                    if (board[newRow][newCol].getCellRepresentation() == currentPlayer) {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            if (count == this.toWin) {
                 return true;
             }
         }
         return false;
     }
 
-    protected abstract boolean checkDiag(Player currentPlayer, boolean isFirstDiagonal, Cell[][] board);
-
-    protected abstract boolean checkLineOrColumn(Player currentPlayer, int index, boolean isLine, Cell[][] board);
-
+    protected boolean checkLineOrColumn(Representation currentPlayer, int index, boolean isLine, Cell[][] board) {
+        for (int j = 0; j < board[index].length; j++) {
+            int count = 0;
+            for (int step = j; step < j + this.toWin && step < board[index].length; step++) {
+                Representation cellValue = isLine
+                        ? board[index][step].getCellRepresentation()
+                        : board[step][index].getCellRepresentation();
+                if (!cellValue.equals(currentPlayer)) {
+                    return false;
+                } else {
+                    count++;
+                }
+            }
+            if (count == this.toWin) {
+                return true;
+            }
+        }
+        return true;
+    }
 }

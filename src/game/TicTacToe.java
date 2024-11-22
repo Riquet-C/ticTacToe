@@ -1,40 +1,35 @@
 package game;
 
-import cells.Cell;
-import cells.CellType;
+import model.Cell;
+import display.Representation;
+import display.GameDisplay;
+import player.ArtficialPlayer;
 import player.Player;
+import player.RealPlayer;
+
+import java.util.List;
 
 
 public class TicTacToe extends BoardGame {
 
-    protected TicTacToe() {
-        super(3);
+    public TicTacToe() {
+        super(3, 3, 3);
     }
 
     @Override
-    protected boolean checkDiag(Player currentPlayer, boolean isFirstDiagonal, Cell[][] board) {
-        for (int j = 0; j < board.length; j++) {
-            CellType cellValue = isFirstDiagonal
-                    ? board[j][j].getCellStatement()
-                    : board[j][board.length - 1 - j].getCellStatement();
-            if (!cellValue.equals(currentPlayer.getRepresentation())) {
-                return false;
-            }
-        }
-        return true;
-    }
+    protected void movePlayer(Player player, Cell[][] board) {
+        List<Integer> choice = player.getMoveFromPlayer(player, board, 2);
 
-    @Override
-    protected boolean checkLineOrColumn(Player currentPlayer, int index, boolean isLine, Cell[][] board) {
-        for (int j = 0; j < board.length; j++) {
-            CellType cellValue = isLine
-                    ? board[index][j].getCellStatement()
-                    : board[j][index].getCellStatement();
-            if (!cellValue.equals(currentPlayer.getRepresentation())) {
-                return false;
-            }
+        Cell cellToChange = board[choice.get(1)][choice.get(0)];
+
+        if (cellToChange.getCellRepresentation() == Representation.EMPTY) {
+            cellToChange.setCellRepresentation(player.getPlayerRepresentation());
+        } else if (player.getClass() == RealPlayer.class) {
+            GameDisplay.ALREADY_CHOOSE.display();
+            movePlayer(player, board);
+        } else if (player.getClass() == ArtficialPlayer.class) {
+            movePlayer(player, board);
         }
-        return true;
     }
 
 }
