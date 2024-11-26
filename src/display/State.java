@@ -1,6 +1,6 @@
 package display;
 
-public enum Representation {
+public enum State {
 
     ANSI_RESET("\u001B[0m"),
     ANSI_GREEN("\u001B[32m"),
@@ -12,7 +12,7 @@ public enum Representation {
 
     private final String type;
 
-    Representation(String type) {
+    State(String type) {
         this.type = type;
     }
 

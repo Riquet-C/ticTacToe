@@ -1,6 +1,6 @@
-package menu;
+package controller;
 
-import game.BoardGame;
+import controller.game.BoardGame;
 
 public class Main {
 

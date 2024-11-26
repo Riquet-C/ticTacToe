@@ -1,21 +1,21 @@
 package model;
 
-import display.Representation;
+import display.State;
 
 public class Cell {
 
-    private Representation representation;
+    private State state;
 
-    public Cell(Representation representation) {
-        this.representation = representation;
+    public Cell(State state) {
+        this.state = state;
     }
 
-    public Representation getCellRepresentation() {
-        return representation;
+    public State getCellState() {
+        return state;
     }
 
-    public void setCellRepresentation(Representation representation) {
-        this.representation = representation;
+    public void setCellState(State state) {
+        this.state = state;
     }
 
 }

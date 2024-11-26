@@ -1,4 +1,4 @@
-package game;
+package controller;
 
 public class AnswerException extends Exception {
     public AnswerException(String message) {

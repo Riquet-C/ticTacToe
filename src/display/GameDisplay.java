@@ -1,7 +1,7 @@
 package display;
 
-import model.Cell;
-import player.Player;
+import model.board.Board;
+import model.player.Player;
 
 public enum GameDisplay {
 
@@ -39,28 +39,28 @@ public enum GameDisplay {
         System.out.printf(this.message, parameters);
     }
 
-    public void displayBoard(Cell[][] board) {
+    public void displayBoard(Board board) {
         System.out.print("    ");
-        for (int col = 0; col < board[0].length; col++) {
+        for (int col = 0; col < board.getBoard()[0].length; col++) {
             System.out.printf("  %2d   ", (col + 1)); // Format des numéros de colonnes
         }
         System.out.println();
-        System.out.println("   " + "+------".repeat(board[0].length) + "+");
-        for (int i = 0; i < board.length; i++) {
+        System.out.println("   " + "+------".repeat(board.getBoard()[0].length) + "+");
+        for (int i = 0; i < board.getBoard().length; i++) {
             System.out.printf("%2d | ", (i + 1));
-            for (int j = 0; j < board[i].length; j++) {
-                board[i][j].getCellRepresentation().display();
+            for (int j = 0; j < board.getBoard()[i].length; j++) {
+                board.getBoard()[i][j].getCellState().display();
                 System.out.print( "  | ");
             }
             System.out.println();
-            System.out.println("   " + "+------".repeat(board[0].length) + "+");
+            System.out.println("   " + "+------".repeat(board.getBoard()[0].length) + "+");
         }
     }
 
-    public void displayEndGame(Cell[][] board, Boolean isWinner, Player currentPlayer) {
+    public void displayEndGame(Board board, Boolean isWinner, Player currentPlayer) {
         if (isWinner) {
             GameDisplay.BOARD.displayBoard(board);
-            GameDisplay.WIN_GAME.display(currentPlayer.getPlayerRepresentation());
+            GameDisplay.WIN_GAME.display(currentPlayer.getPlayerState());
         } else {
             GameDisplay.FULL_BOARD.display();
             GameDisplay.BOARD.displayBoard(board);

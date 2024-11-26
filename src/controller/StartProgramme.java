@@ -1,10 +1,11 @@
-package menu;
+package controller;
 
+import controller.game.BoardGame;
+import controller.game.Gomoku;
+import controller.game.PuissanceQuatre;
+import controller.game.TicTacToe;
 import display.GameDisplay;
-import game.BoardGame;
-import game.Gomoku;
-import game.PuissanceQuatre;
-import game.TicTacToe;
+import route.Menu;
 
 public class StartProgramme {
 
