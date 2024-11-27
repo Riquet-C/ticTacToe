@@ -1,19 +1,19 @@
 package controller.game;
 
+import display.GameType;
 import model.Cell;
-import model.board.Board;
 
 import java.util.List;
 
 
-public class TicTacToe extends BoardGame {
+public class TicTacToe extends GameController {
 
     public TicTacToe() {
-        super(3, 3, 3);
+        super(3, 3, 3, GameType.TicTacToe);
     }
 
-    public Cell setCellToChange(List<Integer> choice, Board board){
-        return board.getBoard()[choice.get(1)][choice.get(0)];
+    public Cell setCellToChange(List<Integer> choice, Cell[][] board){
+        return board[choice.get(1)][choice.get(0)];
     }
 }
 

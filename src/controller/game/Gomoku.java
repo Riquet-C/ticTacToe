@@ -1,18 +1,17 @@
 package controller.game;
 
+import display.GameType;
 import model.Cell;
-import model.board.Board;
 
 import java.util.List;
 
-public class Gomoku extends BoardGame {
+public class Gomoku extends GameController {
     public Gomoku() {
-        super(15, 15, 5);
-
+        super(15, 15, 5, GameType.Gomoku);
     }
 
-    public Cell setCellToChange(List<Integer> choice, Board board){
-        return board.getBoard()[choice.get(1)][choice.get(0)];
+    public Cell setCellToChange(List<Integer> choice, Cell[][] board){
+        return board[choice.get(1)][choice.get(0)];
     }
 
 }

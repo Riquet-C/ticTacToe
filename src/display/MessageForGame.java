@@ -1,9 +1,6 @@
 package display;
 
-import model.board.Board;
-import model.player.Player;
-
-public enum GameDisplay {
+public enum MessageForGame {
 
     ANSI_PURPLE("\u001B[35m"),
     ANSI_RESET("\u001B[0m"),
@@ -29,42 +26,14 @@ public enum GameDisplay {
             "╠╣ ││││   │││ │   │├┤ │ │\n" +
             "╚  ┴┘└┘  ─┴┘└─┘  └┘└─┘└─┘ \n");
 
+
     private final String message;
 
-    GameDisplay(String message) {
+    MessageForGame(String message) {
         this.message = message;
     }
 
-    public void display(Object... parameters) {
-        System.out.printf(this.message, parameters);
-    }
-
-    public void displayBoard(Board board) {
-        System.out.print("    ");
-        for (int col = 0; col < board.getBoard()[0].length; col++) {
-            System.out.printf("  %2d   ", (col + 1)); // Format des numéros de colonnes
-        }
-        System.out.println();
-        System.out.println("   " + "+------".repeat(board.getBoard()[0].length) + "+");
-        for (int i = 0; i < board.getBoard().length; i++) {
-            System.out.printf("%2d | ", (i + 1));
-            for (int j = 0; j < board.getBoard()[i].length; j++) {
-                board.getBoard()[i][j].getCellState().display();
-                System.out.print( "  | ");
-            }
-            System.out.println();
-            System.out.println("   " + "+------".repeat(board.getBoard()[0].length) + "+");
-        }
-    }
-
-    public void displayEndGame(Board board, Boolean isWinner, Player currentPlayer) {
-        if (isWinner) {
-            GameDisplay.BOARD.displayBoard(board);
-            GameDisplay.WIN_GAME.display(currentPlayer.getPlayerState());
-        } else {
-            GameDisplay.FULL_BOARD.display();
-            GameDisplay.BOARD.displayBoard(board);
-        }
-        GameDisplay.ENDGAME.display();
+    public String getMessage() {
+        return message;
     }
 }

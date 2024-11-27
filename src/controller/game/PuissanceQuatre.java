@@ -1,20 +1,20 @@
 package controller.game;
 
+import display.GameType;
 import model.Cell;
 import display.State;
-import model.board.Board;
 
 import java.util.List;
 
-public class PuissanceQuatre extends BoardGame {
+public class PuissanceQuatre extends GameController {
 
     public PuissanceQuatre() {
-        super(7, 6, 4);
+        super(7, 6, 4, GameType.PuissanceQuatre);
     }
 
 
-    public Cell setCellToChange(List<Integer> choice, Board board){
-        return board.getBoard()[getLine(choice.getFirst(), board.getBoard())][choice.getFirst()];
+    public Cell setCellToChange(List<Integer> choice, Cell[][] board){
+        return board[getLine(choice.getFirst(), board)][choice.getFirst()];
     }
 
     public int getLine(int colChoice, Cell[][] board) {
