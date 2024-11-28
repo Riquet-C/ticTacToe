@@ -1,14 +1,17 @@
 package controller.game;
 
-import controller.player.ArtificialPlayerController;
 import controller.player.PlayerController;
-import controller.player.RealPlayerController;
 import display.*;
 import display.view.GameView;
+import model.game.GameModel;
 import model.board.Board;
-import model.Cell;
+import model.board.Cell;
+import model.game.PuissanceQuatreModel;
 import model.player.ArtificialPlayerModel;
+import model.player.PlayerManager;
 import model.player.PlayerModel;
+import display.Menu;
+import model.player.RealPlayerModel;
 
 import java.util.List;
 
@@ -22,100 +25,83 @@ import java.util.List;
  */
 public abstract class GameController {
 
+    private final GameModel gameModel;
     private final GameView displayGame;
-    private final GameType type;
-    private final int col;
-    private final int row;
+    private final PlayerController playerController;
+    private final Menu menu;
     private final Board board;
+    private final PlayerManager playerManager;
     private final int toWin;
+    private final GameType type;
+    private final int choiceToDo;
 
-    protected GameController(int col, int row, int toWin, GameType type) {
+    protected GameController(int col, int row, int toWin, int choiceToDo, GameType type) {
+        gameModel = setGameModel();
         displayGame = new GameView();
+        playerManager = new PlayerManager();
+        playerController = new PlayerController();
+        menu = new Menu();
+        board = new Board(row, col);
+
         this.type = type;
-        this.col = col;
-        this.row = row;
         this.toWin = toWin;
-        this.board = new Board(row, col);
+        this.choiceToDo = choiceToDo;
+    }
+
+    private GameModel setGameModel() {
+       if(type == GameType.PuissanceQuatre){
+           return new PuissanceQuatreModel();
+       } else {
+           return new GameModel();
+       }
     }
 
     /**
      * Démarre la boucle principale du jeu.
      * Gère les tours des joueurs jusqu'à ce qu'il y ait un gagnant ou qu'il n'y ait plus de cellules disponibles.
      */
-    public void game(PlayerModel player1, PlayerModel player2) {
-        PlayerModel currentPlayer = player1;
-        while (!checkWin(currentPlayer) && board.checkEmptyCell()) {
-            currentPlayer = changePlayer(currentPlayer, player1, player2);
+    public void game() {
+        createPlayers();
+        PlayerModel currentPlayer = playerManager.getCurrentPlayer();
+        while (!board.checkWin(currentPlayer, toWin) && board.checkEmptyCell()) {
+            currentPlayer = playerManager.getCurrentPlayer();
             displayGame.displayBoard(board);
             displayGame.display(MessageForGame.PLAYER_IN_GAME.getMessage(), currentPlayer.getState());
-            board.placePlayerChoiceInBoard(currentPlayer, this, currentPlayerController(currentPlayer));
+            movePlayer(currentPlayer);
+            playerManager.changePlayer();
         }
         displayGame.displayBoard(board);
-        displayGame.displayEndGame(checkWin(currentPlayer), currentPlayer);
+        displayGame.displayEndGame(board.checkWin(currentPlayer, toWin), currentPlayer);
     }
 
-    protected PlayerModel changePlayer(PlayerModel currentPlayer, PlayerModel player1, PlayerModel player2) {
-        return currentPlayer.equals(player1) ? player2 : player1;
+    private void createPlayers() {
+        displayGame.display(MessageForGame.PLAYER_CHOICE.getMessage());
+        PlayerModel player1 = playerManager.createPlayer(State.O, menu.choicePlayer());
+        displayGame.display(MessageForGame.PLAYER_CHOICE.getMessage());
+        PlayerModel player2 = playerManager.createPlayer(State.X, menu.choicePlayer());
+        playerManager.setPlayers(new PlayerModel[]{player1, player2});
     }
 
-    protected PlayerController currentPlayerController(PlayerModel currentPlayer) {
-        if(currentPlayer.getClass() == ArtificialPlayerModel.class) {
-            return new ArtificialPlayerController();
+    private void movePlayer(PlayerModel currentPlayer) {
+
+        List<Integer> choice = playerChoice(currentPlayer);
+
+        Cell cellToChange = gameModel.setCellToChange(choice, board.getBoard());
+        if (cellToChange.getCellState() == State.EMPTY) {
+            cellToChange.setCellState(currentPlayer.getState());
+        } else if (currentPlayer.getClass() == RealPlayerModel.class) {
+            displayGame.display(MessageForGame.ALREADY_CHOOSE.getMessage());
+            movePlayer(currentPlayer);
+        } else if (currentPlayer.getClass() == ArtificialPlayerModel.class) {
+            movePlayer(currentPlayer);
+        }
+    }
+
+    private List<Integer> playerChoice(PlayerModel currentPlayer) {
+        if (!currentPlayer.isAutonomous()) {
+            return playerController.getChoiceFromPlayer(board.getBoard(), choiceToDo);
         } else {
-            return new RealPlayerController();
+            return playerController.artificialChoice(board.getBoard(), choiceToDo);
         }
     }
-
-    /**
-     * Définit la cellule où le joueur veut jouer.
-     * Cette méthode doit être implémentée par une classe concrète.
-     *
-     * @param choice Liste des coordonnées choisies par le joueur.
-     * @param board  Plateau actuel du jeu.
-     * @return Cellule à modifier.
-     */
-    public abstract Cell setCellToChange(List<Integer> choice, Cell[][] board);
-
-    protected boolean checkWin(PlayerModel currentPlayer) {
-
-        State currentPlayerState = currentPlayer.getState();
-
-        for (int i = 0; i < this.row; i++) {
-            for (int j = 0; j < this.col; j++) {
-                if (checkDirection(currentPlayerState, i, j, 0, 1) // check line
-                        || checkDirection(currentPlayerState, i, j, 1, 0) // check column
-                        || checkDirection(currentPlayerState, i, j, 1, 1) // check diag descendante
-                        || checkDirection(currentPlayerState, i, j, 1, -1)) // check diag montante
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Two nested loops are used in the win method to iterate through the entire 2D board.
-     * The loop with step allows us to start at board[row][column] and traverse X cells in a row, column, or diagonal
-     * (where step MAX is the number of aligned points required to win, depending on the game).
-     *
-     * @param u Index to add to row
-     * @param v Index to add to column
-     * @return false if the cell does not exist OR is not equal to the current model/player's representation.
-     * true if, after traversing K* cells, all the cells are identical.
-     */
-    private boolean checkDirection(State currentPlayer, int row, int column, int u, int v) {
-        for (int step = 0; step < toWin; step++) {
-            if (!exist(row + u * step, column + v * step)) {
-                return false;
-            }
-            if (board.getBoard()[row + u * step][column + v * step].getCellState() != currentPlayer) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean exist(int i, int j) {
-        return i >= 0 && i < this.row && j >= 0 && j < this.col;
-    }
-
 }

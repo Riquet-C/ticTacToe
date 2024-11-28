@@ -1,28 +1,22 @@
 package model.board;
 
-import controller.game.GameController;
-import controller.player.ArtificialPlayerController;
-import controller.player.PlayerController;
-import controller.player.RealPlayerController;
 import display.view.GameView;
-import display.MessageForGame;
 import display.State;
 import display.view.View;
-import model.Cell;
-import model.player.ArtificialPlayerModel;
 import model.player.PlayerModel;
-import model.player.RealPlayerModel;
-
-import java.util.List;
 
 public class Board {
 
     Cell[][] board;
     View view;
+    private final int col;
+    private final int row;
 
     public Board(int row, int col) {
         board = createBoard(row, col);
         view = new GameView();
+        this.col = col;
+        this.row = row;
     }
 
     public Cell[][] getBoard(){
@@ -50,19 +44,46 @@ public class Board {
         return false;
     }
 
-    public void placePlayerChoiceInBoard(PlayerModel player, GameController game, PlayerController playerController) {
+    public boolean exist(int i, int j) {
+        return i >= 0 && i < this.row && j >= 0 && j < this.col;
+    }
 
-        List<Integer> choice = playerController.getChoiceFromPlayer(board, 2);
 
-        Cell cellToChange = game.setCellToChange(choice, board);
+    public boolean checkWin(PlayerModel currentPlayer, int toWin) {
 
-        if (cellToChange.getCellState() == State.EMPTY) {
-            cellToChange.setCellState(player.getState());
-        } else if (player.getClass() == RealPlayerModel.class) {
-            view.display(MessageForGame.ALREADY_CHOOSE.getMessage());
-            placePlayerChoiceInBoard(player, game, playerController);
-        } else if (player.getClass() == ArtificialPlayerModel.class) {
-            placePlayerChoiceInBoard(player, game, playerController);
+        State currentPlayerState = currentPlayer.getState();
+
+        for (int i = 0; i < this.row; i++) {
+            for (int j = 0; j < this.col; j++) {
+                if (checkDirection(currentPlayerState, i, j, 0, 1, toWin) // check line
+                        || checkDirection(currentPlayerState, i, j, 1, 0, toWin) // check column
+                        || checkDirection(currentPlayerState, i, j, 1, 1, toWin) // check diag descendante
+                        || checkDirection(currentPlayerState, i, j, 1, -1, toWin)) // check diag montante
+                    return true;
+            }
         }
+        return false;
+    }
+
+    /**
+     * Two nested loops are used in the win method to iterate through the entire 2D board.
+     * The loop with step allows us to start at board[row][column] and traverse X cells in a row, column, or diagonal
+     * (where step MAX is the number of aligned points required to win, depending on the game).
+     *
+     * @param u Index to add to row
+     * @param v Index to add to column
+     * @return false if the cell does not exist OR is not equal to the current model/player's representation.
+     * true if, after traversing K* cells, all the cells are identical.
+     */
+    private boolean checkDirection(State currentPlayer, int row, int column, int u, int v, int toWin) {
+        for (int step = 0; step < toWin; step++) {
+            if (!exist(row + u * step, column + v * step)) {
+                return false;
+            }
+            if (getBoard()[row + u * step][column + v * step].getCellState() != currentPlayer) {
+                return false;
+            }
+        }
+        return true;
     }
 }

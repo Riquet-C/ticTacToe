@@ -4,42 +4,27 @@ import controller.game.GameController;
 import controller.game.Gomoku;
 import controller.game.PuissanceQuatre;
 import controller.game.TicTacToe;
-import model.player.CreatePlayerModel;
 import display.view.ApplicationView;
 import display.MessageForGame;
-import display.State;
-import model.player.PlayerModel;
-import route.Menu;
+import display.Menu;
 
 public class ApplicationController {
 
-    private final CreatePlayerModel createPlayerModel;
-    private final Menu menu;
+    private boolean continueGame;
     private final ApplicationView displayMenu;
-    private PlayerModel player1;
-    private PlayerModel player2;
 
     public ApplicationController() {
-        createPlayerModel = new CreatePlayerModel();
         displayMenu = new ApplicationView();
-        menu = new Menu();
+        continueGame = true;
     }
 
     public void game(){
         displayMenu.firstGame();
-        while (true){
+        while (continueGame) {
             GameController game = choiceGame();
-            createPlayers();
-            game.game(player1, player2);
+            game.game();
             displayMenu.replay();
         }
-    }
-
-    public void createPlayers() {
-        displayMenu.display(MessageForGame.PLAYER_CHOICE.getMessage());
-        player1 = createPlayerModel.createPlayer(State.O, menu.choicePlayer());
-        displayMenu.display(MessageForGame.PLAYER_CHOICE.getMessage());
-        player2 = createPlayerModel.createPlayer(State.X, menu.choicePlayer());
     }
 
     public GameController choiceGame() {
@@ -61,6 +46,7 @@ public class ApplicationController {
             }
             case 4 -> {
                 displayMenu.display(MessageForGame.ENDGAME.getMessage());
+                continueGame = false;
                 System.exit(0);
             }
             default -> {
