@@ -3,9 +3,9 @@ package controller.game;
 
 import display.GameType;
 
-public class TicTacToe extends GameController {
+public class TicTacToeController extends GameController {
 
-    public TicTacToe() {
+    public TicTacToeController() {
         super(3, 3, 3, 2, GameType.TicTacToe);
     }
 }

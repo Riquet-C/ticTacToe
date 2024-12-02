@@ -1,9 +1,9 @@
 package controller;
 
 import controller.game.GameController;
-import controller.game.Gomoku;
-import controller.game.PuissanceQuatre;
-import controller.game.TicTacToe;
+import controller.game.GomokuController;
+import controller.game.PuissanceQuatreController;
+import controller.game.TicTacToeController;
 import display.view.ApplicationView;
 import display.MessageForGame;
 import display.Menu;
@@ -22,8 +22,10 @@ public class ApplicationController {
         displayMenu.firstGame();
         while (continueGame) {
             GameController game = choiceGame();
-            game.game();
-            displayMenu.replay();
+            if (game != null) {
+                game.game();
+                displayMenu.replay();
+            }
         }
     }
 
@@ -34,20 +36,20 @@ public class ApplicationController {
         switch (choice){
             case 1 -> {
                 displayMenu.display(MessageForGame.GAME.getMessage(), "Tic-Tac-Toe");
-                return new TicTacToe();
+                return new TicTacToeController();
             }
             case 2 -> {
                 displayMenu.display(MessageForGame.GAME.getMessage(), "Gomoku");
-                return new Gomoku();
+                return new GomokuController();
             }
             case 3 -> {
                 displayMenu.display(MessageForGame.GAME.getMessage(), "Puissance Quatre");
-                return new PuissanceQuatre();
+                return new PuissanceQuatreController();
             }
             case 4 -> {
                 displayMenu.display(MessageForGame.ENDGAME.getMessage());
                 continueGame = false;
-                System.exit(0);
+                return null;
             }
             default -> {
                 displayMenu.display(MessageForGame.INVALIDE_CHOICE.getMessage());

@@ -1,18 +1,20 @@
 package model.player;
 
-import display.State;
+import model.State;
 
-public abstract class PlayerModel {
+public abstract class Player {
     private final State state;
     private final boolean isAutonomous;
 
-    protected PlayerModel(State state, Boolean isAutonomous) {
+    protected Player(State state, Boolean isAutonomous) {
         this.state = state;
         this.isAutonomous = isAutonomous;
     }
     public State getState() {
         return state;
     }
+
+
 
     public boolean isAutonomous() {
         return isAutonomous;

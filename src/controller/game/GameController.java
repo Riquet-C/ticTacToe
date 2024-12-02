@@ -3,15 +3,11 @@ package controller.game;
 import controller.player.PlayerController;
 import display.*;
 import display.view.GameView;
+import model.State;
 import model.game.GameModel;
 import model.board.Board;
-import model.board.Cell;
-import model.game.PuissanceQuatreModel;
-import model.player.ArtificialPlayerModel;
 import model.player.PlayerManager;
-import model.player.PlayerModel;
 import display.Menu;
-import model.player.RealPlayerModel;
 
 import java.util.List;
 
@@ -25,7 +21,7 @@ import java.util.List;
  */
 public abstract class GameController {
 
-    private final GameModel gameModel;
+
     private final GameView displayGame;
     private final PlayerController playerController;
     private final Menu menu;
@@ -36,72 +32,63 @@ public abstract class GameController {
     private final int choiceToDo;
 
     protected GameController(int col, int row, int toWin, int choiceToDo, GameType type) {
-        gameModel = setGameModel();
+        this.type = type;
+        this.toWin = toWin;
+        this.choiceToDo = choiceToDo;
+
         displayGame = new GameView();
         playerManager = new PlayerManager();
         playerController = new PlayerController();
         menu = new Menu();
         board = new Board(row, col);
-
-        this.type = type;
-        this.toWin = toWin;
-        this.choiceToDo = choiceToDo;
     }
 
-    private GameModel setGameModel() {
-       if(type == GameType.PuissanceQuatre){
-           return new PuissanceQuatreModel();
-       } else {
-           return new GameModel();
-       }
-    }
 
     /**
      * Démarre la boucle principale du jeu.
      * Gère les tours des joueurs jusqu'à ce qu'il y ait un gagnant ou qu'il n'y ait plus de cellules disponibles.
      */
     public void game() {
-        createPlayers();
-        PlayerModel currentPlayer = playerManager.getCurrentPlayer();
-        while (!board.checkWin(currentPlayer, toWin) && board.checkEmptyCell()) {
-            currentPlayer = playerManager.getCurrentPlayer();
-            displayGame.displayBoard(board);
-            displayGame.display(MessageForGame.PLAYER_IN_GAME.getMessage(), currentPlayer.getState());
-            movePlayer(currentPlayer);
+        createPlayers(2);
+        while (!isEnding()) {
             playerManager.changePlayer();
+            displayGame.display(board.getRepresentation());
+            displayGame.display(MessageForGame.PLAYER_IN_GAME.getMessage(), playerManager.getCurrentState());
+            movePlayer();
         }
-        displayGame.displayBoard(board);
-        displayGame.displayEndGame(board.checkWin(currentPlayer, toWin), currentPlayer);
+        displayGame.display(board.getRepresentation());
+        displayGame.displayEndGame(board.checkWin(playerManager.getCurrentState(), toWin), playerManager.getRepresentation());
     }
 
-    private void createPlayers() {
-        displayGame.display(MessageForGame.PLAYER_CHOICE.getMessage());
-        PlayerModel player1 = playerManager.createPlayer(State.O, menu.choicePlayer());
-        displayGame.display(MessageForGame.PLAYER_CHOICE.getMessage());
-        PlayerModel player2 = playerManager.createPlayer(State.X, menu.choicePlayer());
-        playerManager.setPlayers(new PlayerModel[]{player1, player2});
-    }
-
-    private void movePlayer(PlayerModel currentPlayer) {
-
-        List<Integer> choice = playerChoice(currentPlayer);
-
-        Cell cellToChange = gameModel.setCellToChange(choice, board.getBoard());
-        if (cellToChange.getCellState() == State.EMPTY) {
-            cellToChange.setCellState(currentPlayer.getState());
-        } else if (currentPlayer.getClass() == RealPlayerModel.class) {
-            displayGame.display(MessageForGame.ALREADY_CHOOSE.getMessage());
-            movePlayer(currentPlayer);
-        } else if (currentPlayer.getClass() == ArtificialPlayerModel.class) {
-            movePlayer(currentPlayer);
+    private void createPlayers(int nbJoueur) {
+        for (int i = 0; i < nbJoueur; i++) {
+            State state = (i % nbJoueur == 0) ? State.O : State.X;
+            displayGame.display(MessageForGame.PLAYER_CHOICE.getMessage());
+            playerManager.createPlayer(state, menu.choicePlayer());
         }
     }
 
-    private List<Integer> playerChoice(PlayerModel currentPlayer) {
-        if (!currentPlayer.isAutonomous()) {
-            return playerController.getChoiceFromPlayer(board.getBoard(), choiceToDo);
+    private boolean isEnding() {
+        return board.checkWin(playerManager.getCurrentState(), toWin) || !board.isBoardEmpty();
+    }
+
+    private void movePlayer() {
+        List<Integer> choice = playerChoice();
+
+        int col = board.setCol(choice, type);
+        int row = board.setRow(col, choice, type);
+
+        if (board.isCellChangeable(row, col)) {
+            board.setCellToChange(row, col, playerManager.getCurrentState());
+        } else movePlayer();
+    }
+
+    private List<Integer> playerChoice() {
+        if (!playerManager.isCurrentPlayerAutonomous()) {
+            return playerController.getChoiceFromPlayer(board.getNbRow(), board.getNbCol(), choiceToDo);
         } else {
-            return playerController.artificialChoice(board.getBoard(), choiceToDo);
+            return playerController.artificialChoice(board.getNbCol(), choiceToDo);
         }
     }
+
 }

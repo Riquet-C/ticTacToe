@@ -1,4 +1,6 @@
-package display;
+package model;
+
+import model.board.Board;
 
 public enum State {
 
@@ -16,7 +18,6 @@ public enum State {
         this.type = type;
     }
 
-    public void display(){
-        System.out.print(this.type);
-    }
+    public String getType() {return type;}
+
 }

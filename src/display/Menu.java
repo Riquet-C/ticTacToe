@@ -1,7 +1,5 @@
 package display;
 
-import controller.AnswerException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
